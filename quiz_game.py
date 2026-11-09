@@ -87,6 +87,7 @@ class QuizGame:
         score = 0
 
         print("\n===== 퀴즈 시작 =====")
+        print("각 문제의 정답 번호를 1~4 중에서 입력하세요.")
 
         for index, quiz in enumerate(self.quizzes, start=1):
             quiz.display(index)
