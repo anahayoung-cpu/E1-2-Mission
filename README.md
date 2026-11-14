@@ -737,12 +737,44 @@ git pull
 git clone https://github.com/anahayoung-cpu/E1-2-Mission.git
 ```
 
+### 브랜치 구조 확인 : git log --graph
+
+<img width="888" height="1176" alt="image" src="https://github.com/user-attachments/assets/dff3be19-661a-4c2e-8de9-8ecd462ede5f" />
+
+
+
+
 ---
 
 ## 10. 커밋 이력
 
 프로젝트를 진행하면서 기능 단위로 커밋을 작성했습니다.
 
+### 커밋 규칙
+
+#### 1. 커밋 단위
+- 하나의 커밋에는 하나의 논리적 작업만 포함합니다.
+- 기능 추가, 버그 수정, 리팩토링, 문서 수정은 가능한 한 분리하여 커밋합니다.
+- 여러 파일을 수정하더라도 하나의 목적을 위한 변경이면 하나의 커밋으로 묶을 수 있습니다.
+
+#### 2. 커밋 메시지 형식
+커밋 메시지는 다음 형식을 따릅니다.
+
+Prefix: Scope: 설명
+
+예시:
+- Feat: Quiz: 퀴즈 시작 기능 추가
+- Fix: Save: 점수 저장 파일 생성 오류 수정
+- Docs: README: 실행 방법 설명 추가
+
+#### 3. Prefix 종류
+- Feat: 새로운 기능 추가
+- Fix: 버그 수정
+- Docs: 문서 수정
+- Refactor: 코드 구조 개선(기능 변화 없음)
+- Test: 테스트 코드 추가/수정
+
+#### 4. 커밋 기
 ```text
 Init: 프로젝트 기본 파일 생성
 Chore: 프로젝트 기본 구조 생성
@@ -781,7 +813,258 @@ git merge feature/play-quiz
 
 ---
 
-## 12. 프로젝트 요약
+## 12. 대규모(1000개 이상) 퀴즈에 대한 성능·메모리·검색속도 테스트
+
+```bash
+import json
+import time
+import tracemalloc
+
+TEST_FILE = "test_quizzes.json"
+
+
+def make_dummy_quizzes(n=1000):
+    quizzes = []
+    for i in range(n):
+        quizzes.append({
+            "id": i,
+            "question": f"문제 {i}",
+            "answer": f"정답 {i}",
+            "category": "테스트",
+            "difficulty": "easy"
+        })
+    return quizzes
+
+
+def create_test_file(n=1000):
+    quizzes = make_dummy_quizzes(n)
+    with open(TEST_FILE, "w", encoding="utf-8") as f:
+        json.dump(quizzes, f, ensure_ascii=False, indent=2)
+
+
+def load_quizzes():
+    with open(TEST_FILE, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def find_quiz_linear(quizzes, target_id):
+    for quiz in quizzes:
+        if quiz["id"] == target_id:
+            return quiz
+    return None
+
+
+def save_quizzes(quizzes):
+    with open(TEST_FILE, "w", encoding="utf-8") as f:
+        json.dump(quizzes, f, ensure_ascii=False, indent=2)
+
+
+def benchmark():
+    print("=== 테스트 파일 생성 ===")
+    create_test_file(1000)
+
+    print("=== 메모리/로드 테스트 ===")
+    tracemalloc.start()
+
+    start = time.perf_counter()
+    quizzes = load_quizzes()
+    load_time = time.perf_counter() - start
+
+    current, peak = tracemalloc.get_traced_memory()
+    tracemalloc.stop()
+
+    print(f"로드 시간: {load_time:.6f}초")
+    print(f"현재 메모리: {current / 1024:.2f} KB")
+    print(f"최대 메모리: {peak / 1024:.2f} KB")
+
+    print("\n=== 검색 테스트 ===")
+    start = time.perf_counter()
+    for _ in range(1000):  # 여러 번 반복해서 측정
+        find_quiz_linear(quizzes, 999)  # 마지막 항목 탐색 = 최악에 가까운 경우
+    search_time = time.perf_counter() - start
+
+    print(f"1000회 검색 시간: {search_time:.6f}초")
+    print(f"1회 평균 검색 시간: {search_time / 1000:.10f}초")
+
+    print("\n=== 저장 테스트 ===")
+    quizzes[0]["question"] = "수정된 문제"
+
+    start = time.perf_counter()
+    save_quizzes(quizzes)
+    save_time = time.perf_counter() - start
+
+    print(f"저장 시간: {save_time:.6f}초")
+
+
+if __name__ == "__main__":
+    benchmark()
+```
+## 1000개 퀴즈 성능 테스트
+
+### 테스트 조건
+- 데이터 수: 1000개 더미 퀴즈
+- 저장 형식: JSON
+- 측정 항목: 로드 시간, 검색 시간, 저장 시간, 메모리 사용량
+- 측정 방법: `time.perf_counter()`, `tracemalloc` 사용
+
+### 테스트 방식
+- 프로그램 시작 시 전체 JSON 파일을 로드
+- ID가 999인 퀴즈를 1000회 반복 검색
+- 퀴즈 1개 수정 후 전체 JSON 파일 다시 저장
+
+### 결과
+
+<img width="531" height="339" alt="image" src="https://github.com/user-attachments/assets/8937f8be-c8f3-4de4-8c20-b64a36b99b66" />
+
+
+### 분석
+- 현재 구조는 전체 데이터를 메모리에 올리므로 데이터 수 증가에 따라 메모리 사용량이 증가한다.
+- 검색은 리스트 순차 탐색 방식이므로 O(n)이다.
+- 저장은 전체 JSON 파일을 다시 쓰므로 데이터가 많아질수록 저장 비용이 증가한다.
+
+### 개선 방향
+- ID 기반 딕셔너리 인덱스 도입
+- 화면 출력 페이징 적용
+- 데이터가 더 커질 경우 SQLite 등으로 저장 방식 변경 고려
+
+---
+
+## 13. 백업 파일 생성
+
+### 백업 및 복구 정책
+
+이 프로젝트는 `state.json` 저장 전 기존 파일을 `state.json.bak`로 백업합니다.
+
+#### 저장 정책
+- `state.json`이 이미 존재하면, 새로 저장하기 전에 `state.json.bak` 파일을 생성합니다.
+- 이를 통해 최근 정상 저장본 1개를 보관합니다.
+
+#### 복구 절차
+1. 프로그램 시작 시 `state.json`을 읽습니다.
+2. 파일이 없거나 JSON 손상이 있으면 `state.json.bak`로 복구를 시도합니다.
+3. 백업 복구가 성공하면 다시 `state.json`에 저장합니다.
+4. 백업도 실패하면 기본 데이터로 초기화하고 저장합니다.
+
+#### 한계
+- 현재는 최근 1개 백업만 유지합니다.
+- 필요하면 추후 다중 백업(날짜/시간 기반)으로 확장할 수 있습니다.
+
+기능 구현
+
+```bash
+import os
+import json
+import shutil
+
+STATE_FILE = "state.json"
+BACKUP_FILE = "state.json.bak"
+
+def save_data(self):
+    data = {
+        "quizzes": [quiz.to_dict() for quiz in self.quizzes]
+    }
+
+    try:
+        # 기존 state.json이 있으면 백업 생성
+        if os.path.exists(STATE_FILE):
+            shutil.copyfile(STATE_FILE, BACKUP_FILE)
+
+        with open(STATE_FILE, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+
+    except OSError as e:
+        print(f"데이터 저장 중 오류가 발생했습니다: {e}")
+
+def load_data(self):
+    try:
+        with open(STATE_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
+
+        self.quizzes = [Quiz.from_dict(q) for q in data.get("quizzes", [])]
+
+    except (FileNotFoundError, json.JSONDecodeError, OSError):
+        print("state.json 파일에 문제가 있습니다. 백업 파일로 복구를 시도합니다.")
+
+        try:
+            with open(BACKUP_FILE, "r", encoding="utf-8") as f:
+                data = json.load(f)
+
+            self.quizzes = [Quiz.from_dict(q) for q in data.get("quizzes", [])]
+            print("백업 파일에서 데이터를 복구했습니다.")
+
+            # 복구한 내용을 다시 원본 파일에 저장
+            self.save_data()
+
+        except (FileNotFoundError, json.JSONDecodeError, OSError):
+            print("백업 파일도 사용할 수 없어 기본 데이터로 초기화합니다.")
+            self.quizzes = self.create_default_quizzes()
+            self.save_data()
+
+```
+현재 프로젝트는 `state.json` 저장 전 기존 파일을 `state.json.bak`로 백업합니다.
+로드 시 `state.json`이 손상되었으면 `.bak` 파일로 복구를 시도하고,
+백업도 실패하면 기본 데이터로 초기화합니다.
+
+---
+
+## 14. 요구사항 변경 시 예상 수정 범위
+이 프로젝트는 퀴즈 모델, 점수 계산, 파일 저장/복구 기능이 서로 연결되어 있습니다.
+따라서 요구사항이 변경되면 아래 항목을 함께 확인해야 합니다.
+
+### 1. 점수 계산 규칙 변경
+예: 정답 점수 변경, 오답 감점 추가, 난이도별 점수 차등 적용
+
+수정 대상:
+- 점수 계산 로직이 있는 메서드(예: `play_quiz()`)
+- 점수 관련 속성(예: `self.score`)
+- 점수 출력 문구
+- 점수를 저장하는 경우 `save_data()` / `load_data()`
+
+### 2. 퀴즈 데이터 구조 변경
+예: `hint`, `difficulty`, `category` 속성 추가
+
+수정 대상:
+- `Quiz` 클래스
+- `__init__`
+- `to_dict()`
+- `from_dict()`
+- 기본 퀴즈 생성 부분
+- `save_data()` / `load_data()`
+
+### 3. 저장 형식 변경
+예: `state.json`에 사용자 기록, 통계, 마지막 실행 정보 추가
+
+수정 대상:
+- `save_data()`
+- `load_data()`
+- 기본값 초기화 로직
+- 백업/복구 로직(`state.json.bak`)
+
+### 4. 입력 방식 변경
+예: 메뉴 선택 방식 변경, 숫자 입력 검증 강화
+
+수정 대상:
+- 입력 처리 메서드(예: `input_number()`)
+- 메뉴 처리 로직
+- 예외 처리(`ValueError`, `KeyboardInterrupt`, `EOFError`)
+
+### 5. 복구 정책 변경
+예: 기본 초기화 대신 백업 우선 복구, 다중 백업 추가
+
+수정 대상:
+- `save_data()`
+- `load_data()`
+- 백업 파일 관리 방식
+- README 문서의 복구 절차 설명
+
+## 유지보수 시 확인 사항
+요구사항이 바뀌면 한 부분만 수정하지 않고,  
+`Quiz 모델 → 점수 계산 → 저장/복구 → 입력 처리 → 문서` 순서로 함께 점검해야 합니다.
+
+
+---
+
+## 15. 프로젝트 요약
 
 이 프로젝트는 Python을 이용해 콘솔 기반 퀴즈 게임을 구현한 과제입니다.
 
