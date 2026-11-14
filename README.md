@@ -742,8 +742,6 @@ git clone https://github.com/anahayoung-cpu/E1-2-Mission.git
 <img width="888" height="1176" alt="image" src="https://github.com/user-attachments/assets/dff3be19-661a-4c2e-8de9-8ecd462ede5f" />
 
 
-
-
 ---
 
 ## 10. 커밋 이력
@@ -774,7 +772,7 @@ Prefix: Scope: 설명
 - Refactor: 코드 구조 개선(기능 변화 없음)
 - Test: 테스트 코드 추가/수정
 
-#### 4. 커밋 기
+#### 4. 커밋 기록
 ```text
 Init: 프로젝트 기본 파일 생성
 Chore: 프로젝트 기본 구조 생성
