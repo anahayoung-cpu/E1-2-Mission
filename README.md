@@ -121,7 +121,7 @@ if __name__ == "__main__":
 작성 코드
 ```text
 class Quiz:
-    def __init__(self, question, choices, answer):
+    def __init__(self, question, choices, answer): # 매개변
         if not isinstance(question, str) or question.strip() == "":
             raise ValueError("문제는 비어 있을 수 없습니다.")
 
@@ -174,6 +174,11 @@ class Quiz:
 
 - JSON 저장을 위한 딕셔너리 변환
 
+추가 개념:
+
+- to_dict(self)가 인스턴스 메서드인 이유 : 이미 만들어진 개별 퀴즈 객체의 정보를 딕셔너리로 바꾸는 것
+- from_dict(cls, data)가 클래스 메서드인 이유 : from_dict를 호출하는 시점에는 아직 퀴즈 객체가 만들어지기 전이기 때문에 딕셔너리 데이터를 가지고 객체를 만들기 위해 클래스 사용
+
 ---
 
 ### `quiz_game.py`
@@ -187,13 +192,14 @@ class Quiz:
 - 초기 설정
 ```text
 import json
-import os
+import os # 파일 존재 확
 from quiz import Quiz
 ```
 
-- 자동 초기화
+- QuizGame 클래스 생성 및 자동 초기화
 ```text
-def __init__(self):
+class QuizGame:
+    def __init__(self):
         self.quizzes = []
         self.best_score = None
         self.best_total = 0
@@ -201,6 +207,13 @@ def __init__(self):
         base_dir = os.path.dirname(os.path.abspath(__file__))
         self.state_path = os.path.join(base_dir, "state.json")
 ```
+* __file__ : 지금 실행 중인 이 코드 파일의 경로
+* os.path.abspat : 절대 경로
+* os.path.dirname : 폴더 이름
+  ⇒ 현재 실행 중인 파이썬 파일이 들어있는 폴더의 전체 주소
+    ex) C:\Project
+* os.path.join(A, B): A라는 폴더 경로와 B라는 파일 이름을 합쳐서 하나의 완성된 경로로 만듦
+  ⇒ C:\Project\state.json
 
 - 디폴트 퀴즈 생성
 ```text
@@ -267,6 +280,10 @@ def input_number(self, message, min_value, max_value):
 
             return number
 ```
+* try-except
+* int(value)는 만약 사용자가 "abc"라고 입력했는데 int("abc")를 실행하면, 파이썬은 ValueError라는 에러가 뜨며 프로그램을 즉시 강제 종료함.
+* int(value)를 시도하다가 에러가 발생하면, 프로그램이 멈추는 대신 except ValueError: 칸으로 이동해서, "숫자를 입력해야 합니다."라고 친절하게 알려주고 다시 입력을 받는 것.
+
 
 - 문자 입력 검증
 ```text
@@ -316,7 +333,11 @@ def play_quiz(self):
 
         self.save_data()
 ```
+<img width="689" height="191" alt="image" src="https://github.com/user-attachments/assets/9c6bc50f-fe14-40cc-9f41-7bbb6c986352" />
 
+<img width="740" height="193" alt="image" src="https://github.com/user-attachments/assets/ff874feb-4623-4e8a-b735-ad262d070504" />
+
+<img width="308" height="93" alt="image" src="https://github.com/user-attachments/assets/21263ef7-8f8c-40aa-a82b-666df8ab7db5" />
 
 - 퀴즈 추가 기능
 ```text
@@ -341,6 +362,8 @@ def add_quiz(self):
             print("퀴즈 추가에 실패했습니다.")
             print(error)
 ```
+* rangae(a, b) : a <= 출력값 < b 
+<img width="509" height="219" alt="image" src="https://github.com/user-attachments/assets/32e7cdc0-4e65-4121-ac4d-9c70ab8b765c" />
 
 - 퀴즈 목록 보기
 ```text
@@ -360,6 +383,7 @@ def show_quizzes(self):
             correct_text = quiz.choices[quiz.answer - 1]
             print(f"   정답: {quiz.answer}번 {correct_text}")
 ```
+<img width="696" height="1129" alt="image" src="https://github.com/user-attachments/assets/5cb9a7f8-15b4-47d5-9865-e3ee887f8d03" />
 
 - 최고 점수 관리
 ```text
@@ -371,6 +395,9 @@ def show_best_score(self):
         else:
             print(f"최고 점수: {self.best_score} / {self.best_total}")
 ```
+
+<img width="321" height="271" alt="image" src="https://github.com/user-attachments/assets/14a89dd7-7578-4ff0-b72e-70bcb8011969" />
+
 - 데이터 저장 및 불러오기
 ```text
 def save_data(self):
@@ -386,6 +413,18 @@ def save_data(self):
         except OSError:
             print("데이터 저장 중 오류가 발생했습니다.")
 ```
+*self.quizzes 안에는 Quiz라는 클래스의 객체들이 들어있습니다. 컴퓨터는 객체 그 자체를 파일에 바로 저장할 수 없기 때문에, 각 객체를 to_dict() 메서드를 써서 딕셔너리 형태(글자 데이터)로 변환하여 리스트로 만듭니다. (리스트 컴프리헨션)
+*encoding="utf-8": 한글이 깨지지 않게 저장하기 위한 설정
+*with: 파일을 다 쓰고 나면 자동으로 닫아줌
+*json.dump(data, file): data라는 파이썬 딕셔너리를 file에 JSON 형식으로 써넣습니다.
+*ensure_ascii=False: 이게 없으면 한글이 \u1234처럼 이상하게 보입니다. 한글을 그대로 저장하라는 뜻입니다.
+*indent=4: 파일 내용을 들여쓰기(4칸) 해서 사람이 보기 좋게(예쁘게) 저장합니다.
+
+<객체→딕셔너리→json>
+객체는 "사용하기 편하지만 저장할 수 없고",
+JSON은 "저장하기 편하지만 바로 기능을 쓸 수 없습니다."
+그래서 그 중간 다리 역할로 딕셔너리를 써서 서로 변환하는 것입니다.
+
 ```text
 def load_data(self):
         if not os.path.exists(self.state_path):
@@ -452,6 +491,8 @@ def load_data(self):
                 self.save_data()
                 break
 ```
+
+<img width="325" height="195" alt="image" src="https://github.com/user-attachments/assets/4f025af0-8f5d-406a-99da-c6d81413a56c" />
 
 ---
 
@@ -692,20 +733,18 @@ git clone 본인_GitHub_저장소_URL
 
 프로젝트를 진행하면서 기능 단위로 커밋을 작성했습니다.
 
-예시:
-
 ```text
 Init: 프로젝트 기본 파일 생성
-Docs: README 기본 내용 작성
+Chore: 프로젝트 기본 구조 생성
 Feat: Quiz 클래스 구현
-Feat: QuizGame 클래스 기본 구조 구현
-Feat: 퀴즈 추가 기능 구현
-Feat: 퀴즈 출제 기능 구현
-Feat: 점수 계산 기능 구현
-Feat: JSON 저장 기능 구현
-Feat: JSON 불러오기 기능 구현
-Fix: 입력값 예외 처리 추가
-Docs: README 실행 방법 추가
+Feat: QuizGame 클래스와 기본 기능 구현
+Chore: 오타수정
+Chore: json 저장
+Feat: 퀴즈 시작 안내 문구 추가
+Feat: 퀴즈 시작 안내 문구 수정
+Docs: README 작성
+Feat: 퀴즈 문제 변경
+Docs: README 업데이트
 ```
 
 ---
@@ -741,21 +780,7 @@ git merge feature/play-quiz
 
 ---
 
-## 14. 배운 점
-
-이 프로젝트를 통해 다음 내용을 학습했습니다.
-
-- Python 클래스와 객체를 이용한 구조화된 프로그램 작성
-- 파일을 여러 개로 나누어 역할별로 관리하는 방법
-- 사용자 입력을 받아 콘솔 프로그램을 만드는 방법
-- JSON 파일을 이용해 데이터를 저장하고 불러오는 방법
-- Git을 이용한 버전 관리 방법
-- GitHub 원격 저장소에 프로젝트를 업로드하는 방법
-- 브랜치를 이용해 기능을 분리하여 개발하는 방법
-
----
-
-## 15. 실행 예시
+## 14. 실행 예시
 
 ```text
 ===== 퀴즈 게임 =====
@@ -770,21 +795,22 @@ git merge feature/play-quiz
 ===== 퀴즈 시작 =====
 각 문제의 정답 번호를 1~4 중에서 입력하세요.
 
-문제 1. 파이썬에서 리스트를 만들 때 사용하는 기호는?
-1. ()
-2. []
-3. {}
-4. <>
-
-정답 번호 입력: 2
+문제 1. 다음 중 KS D 3867의 소재가 아닌 것은?
+1. SCM440
+2. SM45C
+3. SNCM220
+4. SNCM420
+정답 번호를 입력하세요: 2
 정답입니다!
 
-최종 점수: 1/1
+===== 결과 =====
+점수: 2 / 5
+최고 점수가 갱신되었습니다!
 ```
 
 ---
 
-## 16. 프로젝트 요약
+## 15. 프로젝트 요약
 
 이 프로젝트는 Python을 이용해 콘솔 기반 퀴즈 게임을 구현한 과제입니다.
 
