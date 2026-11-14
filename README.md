@@ -207,13 +207,19 @@ class QuizGame:
         base_dir = os.path.dirname(os.path.abspath(__file__))
         self.state_path = os.path.join(base_dir, "state.json")
 ```
-* __file__ : 지금 실행 중인 이 코드 파일의 경로
-* os.path.abspat : 절대 경로
-* os.path.dirname : 폴더 이름
-  ⇒ 현재 실행 중인 파이썬 파일이 들어있는 폴더의 전체 주소
-    ex) C:\Project
-* os.path.join(A, B): A라는 폴더 경로와 B라는 파일 이름을 합쳐서 하나의 완성된 경로로 만듦
-  ⇒ C:\Project\state.json
+__file__ : 지금 실행 중인 이 코드 파일의 경로
+
+os.path.abspat : 절대 경로
+
+os.path.dirname : 폴더 이름
+
+⇒ 현재 실행 중인 파이썬 파일이 들어있는 폴더의 전체 주소
+
+     ex) C:\Project
+
+os.path.join(A, B): A라는 폴더 경로와 B라는 파일 이름을 합쳐서 하나의 완성된 경로로 만듦
+
+⇒ C:\Project\state.json
 
 - 디폴트 퀴즈 생성
 ```text
@@ -258,6 +264,9 @@ def show_menu(self):
         print("5. 저장 후 종료")
 ```
 
+<img width="319" height="196" alt="image" src="https://github.com/user-attachments/assets/4887305a-1bd7-4f34-874f-9a1d1dd0989e" />
+
+
 - 숫자 입력 검증
 ```text
 def input_number(self, message, min_value, max_value):
@@ -280,9 +289,15 @@ def input_number(self, message, min_value, max_value):
 
             return number
 ```
-* try-except
-* int(value)는 만약 사용자가 "abc"라고 입력했는데 int("abc")를 실행하면, 파이썬은 ValueError라는 에러가 뜨며 프로그램을 즉시 강제 종료함.
-* int(value)를 시도하다가 에러가 발생하면, 프로그램이 멈추는 대신 except ValueError: 칸으로 이동해서, "숫자를 입력해야 합니다."라고 친절하게 알려주고 다시 입력을 받는 것.
+
+<img width="375" height="191" alt="image" src="https://github.com/user-attachments/assets/7f3404ae-242e-45d1-b5ef-9203a0ab07e2" />
+
+
+try-except
+
+int(value)는 만약 사용자가 "abc"라고 입력했는데 int("abc")를 실행하면, 파이썬은 ValueError라는 에러가 뜨며 프로그램을 즉시 강제 종료함.
+
+int(value)를 시도하다가 에러가 발생하면, 프로그램이 멈추는 대신 except ValueError: 칸으로 이동해서, "숫자를 입력해야 합니다."라고 친절하게 알려주고 다시 입력을 받는 것.
 
 
 - 문자 입력 검증
@@ -297,6 +312,9 @@ def input_text(self, message):
 
             return value
 ```
+
+<img width="349" height="125" alt="image" src="https://github.com/user-attachments/assets/e4dd5484-c344-4cb4-bb1e-c327e270a5d8" />
+
 
 - 퀴즈 플레이 기능
 ```text
@@ -362,7 +380,8 @@ def add_quiz(self):
             print("퀴즈 추가에 실패했습니다.")
             print(error)
 ```
-* rangae(a, b) : a <= 출력값 < b 
+rangae(a, b) : a <= 출력값 < b 
+
 <img width="509" height="219" alt="image" src="https://github.com/user-attachments/assets/32e7cdc0-4e65-4121-ac4d-9c70ab8b765c" />
 
 - 퀴즈 목록 보기
@@ -383,8 +402,10 @@ def show_quizzes(self):
             correct_text = quiz.choices[quiz.answer - 1]
             print(f"   정답: {quiz.answer}번 {correct_text}")
 ```
+
 <img width="696" height="1129" alt="image" src="https://github.com/user-attachments/assets/5cb9a7f8-15b4-47d5-9865-e3ee887f8d03" />
- #퀴즈 주제 선정 이유 : 현재 업무에 기인함.
+ 
+퀴즈 주제 선정 이유 : 현재 업무에 기인함.
  
 - 최고 점수 관리
 ```text
@@ -414,17 +435,18 @@ def save_data(self):
         except OSError:
             print("데이터 저장 중 오류가 발생했습니다.")
 ```
-*self.quizzes 안에는 Quiz라는 클래스의 객체들이 들어있습니다. 컴퓨터는 객체 그 자체를 파일에 바로 저장할 수 없기 때문에, 각 객체를 to_dict() 메서드를 써서 딕셔너리 형태(글자 데이터)로 변환하여 리스트로 만듭니다. (리스트 컴프리헨션)
 
-*encoding="utf-8": 한글이 깨지지 않게 저장하기 위한 설정
+self.quizzes 안에는 Quiz라는 클래스의 객체들이 들어있습니다. 컴퓨터는 객체 그 자체를 파일에 바로 저장할 수 없기 때문에, 각 객체를 to_dict() 메서드를 써서 딕셔너리 형태(글자 데이터)로 변환하여 리스트로 만듭니다. (리스트 컴프리헨션)
 
-*with: 파일을 다 쓰고 나면 자동으로 닫아줌
+encoding="utf-8": 한글이 깨지지 않게 저장하기 위한 설정
 
-*json.dump(data, file): data라는 파이썬 딕셔너리를 file에 JSON 형식으로 써넣습니다.
+with: 파일을 다 쓰고 나면 자동으로 닫아줌
 
-*ensure_ascii=False: 이게 없으면 한글이 \u1234처럼 이상하게 보입니다. 한글을 그대로 저장하라는 뜻입니다.
+json.dump(data, file): data라는 파이썬 딕셔너리를 file에 JSON 형식으로 써넣습니다.
 
-*indent=4: 파일 내용을 들여쓰기(4칸) 해서 사람이 보기 좋게(예쁘게) 저장합니다.
+ensure_ascii=False: 이게 없으면 한글이 \u1234처럼 이상하게 보입니다. 한글을 그대로 저장하라는 뜻입니다.
+
+indent=4: 파일 내용을 들여쓰기(4칸) 해서 사람이 보기 좋게(예쁘게) 저장합니다.
 
 <객체→딕셔너리→json>
 
@@ -469,11 +491,11 @@ def load_data(self):
             self.save_data()
 ```
 
-*data.get("quizzes", []): 딕셔너리에서 "quizzes"라는 키를 찾습니다. 만약 키가 없으면 에러를 내는 대신 빈 리스트([])를 가져옴
+data.get("quizzes", []): 딕셔너리에서 "quizzes"라는 키를 찾습니다. 만약 키가 없으면 에러를 내는 대신 빈 리스트([])를 가져옴
 
-*JSONDecodeError: 파일 내용이 엉망일 때 (글자가 깨짐)
+JSONDecodeError: 파일 내용이 엉망일 때 (글자가 깨짐)
 
-*KeyError: 필요한 데이터(예: "quizzes")가 없을 때
+KeyError: 필요한 데이터(예: "quizzes")가 없을 때
 
 TypeError/ValueError: 데이터 형식이 잘못되었을 때
 
@@ -511,7 +533,7 @@ TypeError/ValueError: 데이터 형식이 잘못되었을 때
 
 <img width="325" height="195" alt="image" src="https://github.com/user-attachments/assets/4f025af0-8f5d-406a-99da-c6d81413a56c" />
 
-*break:반복문이 아직 끝날 차례가 아니더라도, break를 만나는 순간 가장 가까운 반복문 블록을 즉시 탈출하여 그 다음 코드를 실행
+break:반복문이 아직 끝날 차례가 아니더라도, break를 만나는 순간 가장 가까운 반복문 블록을 즉시 탈출하여 그 다음 코드를 실행
 
 ---
 
@@ -606,13 +628,6 @@ cd E1-2-Mission-1
 ```bash
 python main.py
 ```
-
-또는 환경에 따라 다음 명령어를 사용할 수 있습니다.
-
-```bash
-python3 main.py
-```
-
 ---
 
 ## 7. 사용 방법
@@ -658,30 +673,7 @@ quiz.py의 Quiz 객체를 이용해 문제 출력 및 정답 확인
 
 ---
 
-## 9. 개발 순서
-
-일반적인 개발 순서는 다음과 같습니다.
-
-```text
-1. 프로젝트 폴더 생성
-2. README.md, .gitignore 파일 생성
-3. quiz.py 파일 작성
-4. Quiz 클래스 구현
-5. quiz_game.py 파일 작성
-6. QuizGame 클래스 구현
-7. main.py 파일 작성
-8. 프로그램 실행 테스트
-9. JSON 저장 및 불러오기 기능 구현
-10. Git으로 버전 관리
-11. GitHub 원격 저장소 연결
-12. 브랜치 생성 및 기능 개발
-13. main 브랜치에 병합
-14. GitHub에 push
-```
-
----
-
-## 10. Git 사용 기록
+## 9. Git 사용 기록
 
 이 프로젝트에서는 Git을 사용하여 버전 관리를 진행했습니다.
 
@@ -724,7 +716,7 @@ git merge feature/play-quiz
 ### 원격 저장소 연결
 
 ```bash
-git remote add origin 본인_GitHub_저장소_URL
+git remote add origin https://github.com/anahayoung-cpu/E1-2-Mission.git
 ```
 
 ### GitHub에 업로드
@@ -742,12 +734,12 @@ git pull
 ### 원격 저장소 복제
 
 ```bash
-git clone 본인_GitHub_저장소_URL
+git clone https://github.com/anahayoung-cpu/E1-2-Mission.git
 ```
 
 ---
 
-## 11. 커밋 예시
+## 10. 커밋 이력
 
 프로젝트를 진행하면서 기능 단위로 커밋을 작성했습니다.
 
@@ -767,7 +759,7 @@ Docs: README 업데이트
 
 ---
 
-## 12. 브랜치 전략
+## 11. 브랜치 전략
 
 기본 브랜치는 `main`을 사용했습니다.
 
@@ -786,49 +778,10 @@ git checkout main
 git merge feature/play-quiz
 ```
 
----
-
-## 13. 사용한 기술
-
-- Python
-- JSON
-- Git
-- GitHub
-- VSCode
 
 ---
 
-## 14. 실행 예시
-
-```text
-===== 퀴즈 게임 =====
-1. 퀴즈 풀기
-2. 퀴즈 추가
-3. 퀴즈 목록 보기
-4. 최고 점수 확인
-5. 저장 후 종료
-
-메뉴를 선택하세요: 1
-
-===== 퀴즈 시작 =====
-각 문제의 정답 번호를 1~4 중에서 입력하세요.
-
-문제 1. 다음 중 KS D 3867의 소재가 아닌 것은?
-1. SCM440
-2. SM45C
-3. SNCM220
-4. SNCM420
-정답 번호를 입력하세요: 2
-정답입니다!
-
-===== 결과 =====
-점수: 2 / 5
-최고 점수가 갱신되었습니다!
-```
-
----
-
-## 15. 프로젝트 요약
+## 12. 프로젝트 요약
 
 이 프로젝트는 Python을 이용해 콘솔 기반 퀴즈 게임을 구현한 과제입니다.
 
@@ -838,10 +791,7 @@ git merge feature/play-quiz
 
 ---
 
-## 17. 한 줄 설명
+## 13. 한 줄 설명
 
 Python 클래스, JSON 저장 기능, Git 버전 관리를 활용한 콘솔 퀴즈 게임 프로젝트입니다.
 ````
-
-README 내용 아주 잘 구성됐어요.  
-특히 과제 제출용이라면 **프로젝트 소개, 실행 방법, 파일별 역할, Git 사용 기록**이 들어가야 평가자가 보기 좋습니다.
