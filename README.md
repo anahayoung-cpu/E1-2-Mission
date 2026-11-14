@@ -788,10 +788,3 @@ git merge feature/play-quiz
 `main.py`, `quiz.py`, `quiz_game.py`로 파일을 나누어 각각 실행, 퀴즈 문제, 게임 진행 역할을 담당하게 했습니다.
 
 또한 JSON 파일을 사용하여 퀴즈 데이터와 점수를 저장하고, Git과 GitHub를 사용하여 프로젝트를 관리했습니다.
-
----
-
-## 13. 한 줄 설명
-
-Python 클래스, JSON 저장 기능, Git 버전 관리를 활용한 콘솔 퀴즈 게임 프로젝트입니다.
-````
