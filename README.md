@@ -384,7 +384,8 @@ def show_quizzes(self):
             print(f"   정답: {quiz.answer}번 {correct_text}")
 ```
 <img width="696" height="1129" alt="image" src="https://github.com/user-attachments/assets/5cb9a7f8-15b4-47d5-9865-e3ee887f8d03" />
-
+ #퀴즈 주제 선정 이유 : 현재 업무에 기인함.
+ 
 - 최고 점수 관리
 ```text
 def show_best_score(self):
@@ -468,6 +469,14 @@ def load_data(self):
             self.save_data()
 ```
 
+*data.get("quizzes", []): 딕셔너리에서 "quizzes"라는 키를 찾습니다. 만약 키가 없으면 에러를 내는 대신 빈 리스트([])를 가져옴
+
+*JSONDecodeError: 파일 내용이 엉망일 때 (글자가 깨짐)
+
+*KeyError: 필요한 데이터(예: "quizzes")가 없을 때
+
+TypeError/ValueError: 데이터 형식이 잘못되었을 때
+
 - 메뉴 실행
 ```text
     def run(self):
@@ -502,6 +511,8 @@ def load_data(self):
 
 <img width="325" height="195" alt="image" src="https://github.com/user-attachments/assets/4f025af0-8f5d-406a-99da-c6d81413a56c" />
 
+*break:반복문이 아직 끝날 차례가 아니더라도, break를 만나는 순간 가장 가까운 반복문 블록을 즉시 탈출하여 그 다음 코드를 실행
+
 ---
 
 ### `state.json`
@@ -510,7 +521,6 @@ def load_data(self):
 
 프로그램에서 추가한 퀴즈나 최고 점수 등의 정보가 저장됩니다.
 
-예시 구조:
 
 ```json
 {
